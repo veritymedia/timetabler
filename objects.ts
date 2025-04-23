@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 export type AvailabilityRaw = {
   dow: number | string;
   start: string;
