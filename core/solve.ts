@@ -1,22 +1,24 @@
-import { Teacher, Exam, Availability } from "./objects";
-import { teachers as teacherData, exams as examData } from "./data";
+import { Teacher, Exam, Availability } from './objects'
+import { teachers as teacherData, exams as examData } from './data'
 
-const teachers = [];
+const teachers = []
 
 function solve() {
   const teachers = teacherData.map((teacher) => {
-    return new Teacher(teacher);
-  });
+    return new Teacher(teacher)
+  })
 
   const exams = examData.map((exam) => {
-    return new Exam(exam);
-  });
+    return new Exam(exam)
+  })
 
   for (let i = 0; i < exams.length; i++) {
-    exams[i].findTimeslots(teachers);
+    console.log('Solving Exam: ', exams[i].subject)
+    exams[i].findTimeslots(teachers)
   }
 
-  console.log(JSON.stringify(exams, undefined, 2));
+  console.log(JSON.stringify(exams, undefined, 2))
+  return exams
 }
 
-export { solve };
+export { solve }
