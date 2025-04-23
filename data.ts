@@ -37,7 +37,7 @@ export const teachers: TeacherRaw[] = [
 
 export const exams: ExamRaw[] = [
   {
-    start: "9:00",
+    start: "2024-05-08T09:00:00",
     duration: "30",
     room: "Room1",
     subject: "",
