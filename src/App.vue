@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-5xl mx-auto bg-gray-50 rounded-lg shadow-md">
+  <div class="w-screen h-screen bg-gray-50 rounded-lg shadow-md">
     <h1 class="text-2xl font-bold text-indigo-800 mb-6">Exam Schedule</h1>
 
     <!-- Loading state -->
@@ -15,7 +15,7 @@
     </div>
 
     <!-- Exams by week -->
-    <div v-else>
+    <div v-else class="w-full h-full">
       <div v-for="(week, weekIndex) in weeklyExams" :key="weekIndex" class="mb-8">
         <div class="flex items-center mb-4">
           <div class="w-3 h-3 bg-indigo-500 rounded-full mr-2"></div>
