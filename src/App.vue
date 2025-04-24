@@ -217,6 +217,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import type { Exam, Teacher, BookedSegment } from './types'
+import { solve } from '../core/solve'
 
 // Props and emits
 const props = defineProps<{
@@ -417,6 +418,7 @@ const fetchExams = () => {
           dow: 3,
         },
       ]
+      exams.value = solve()
     }
     loading.value = false
   }, 500)
