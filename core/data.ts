@@ -48,4 +48,22 @@ export const exams: ExamRaw[] = [
     room: 'Room1',
     subject: 'Chemistry',
   },
+  {
+    start: '2024-05-10T09:00:00',
+    duration: '30',
+    room: 'Room1',
+    subject: 'Biology',
+  },
+  {
+    start: '2024-05-10T09:00:00',
+    duration: '90',
+    room: 'Room1',
+    subject: 'Chemistry',
+  },
+  {
+    start: '2024-05-09T09:00:00',
+    duration: '20',
+    room: 'Room1',
+    subject: 'Chemistry',
+  },
 ]

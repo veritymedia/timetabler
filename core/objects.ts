@@ -61,6 +61,26 @@ enum TORStatus {
   SubjectNotAllowed,
   NoAvailability,
 }
+
+// Store processed exams globally to check for room/time overlaps
+export class ExamManager {
+  static processedExams: Exam[] = []
+
+  static addProcessedExam(exam: Exam): void {
+    this.processedExams.push(exam)
+  }
+
+  static findOverlappingExamsInSameRoom(exam: Exam): Exam[] {
+    return this.processedExams.filter(
+      (processedExam) => processedExam.room === exam.room && exam.overlapsWithExam(processedExam),
+    )
+  }
+
+  static resetProcessedExams(): void {
+    this.processedExams = []
+  }
+}
+
 export class Exam {
   subject: string
   start: Date
@@ -70,7 +90,10 @@ export class Exam {
   bookedSegments: BookedSegment[]
   complete: boolean
   dow: number
+  id: string // Added ID for easier referencing
+
   constructor(exam: ExamRaw) {
+    this.id = uuidv4()
     this.subject = exam.subject.toLowerCase()
     this.start = new Date(exam.start)
 
@@ -98,8 +121,23 @@ export class Exam {
    * @returns Status of the operation
    */
   findTimeslots(teachers: Teacher[]): TORStatus {
-    // TODO: Need to check if there is another exam in the same room at the same time. If so, need to use the same teacher.
+    // First, check if there are overlapping exams in the same room
+    const overlappingExams = ExamManager.findOverlappingExamsInSameRoom(this)
+    console.log(`Found ${overlappingExams.length} overlapping exams in room ${this.room}`)
 
+    // If there are overlapping exams that are already complete, reuse their teachers
+    if (overlappingExams.length > 0) {
+      const completeOverlappingExams = overlappingExams.filter((exam) => exam.complete)
+
+      if (completeOverlappingExams.length > 0) {
+        console.log(
+          `Found ${completeOverlappingExams.length} complete overlapping exams, reusing their teachers`,
+        )
+        return this.reuseTeachersFromOverlappingExams(completeOverlappingExams)
+      }
+    }
+
+    // If no overlapping exams or none are complete, proceed with normal teacher assignment
     // Sort teachers by bias (lower bias teachers get priority)
     teachers.sort((a, b) => a.bias - b.bias)
 
@@ -125,6 +163,84 @@ export class Exam {
 
     // If we're here and not complete, we couldn't cover the whole exam
     return this.complete ? TORStatus.ExamComplete : TORStatus.NoAvailability
+  }
+
+  /**
+   * Reuse teachers from overlapping exams in the same room
+   * @param overlappingExams Array of overlapping exams in the same room
+   * @returns Status of the operation
+   */
+  private reuseTeachersFromOverlappingExams(overlappingExams: Exam[]): TORStatus {
+    console.log(`Attempting to reuse teachers from ${overlappingExams.length} overlapping exams`)
+
+    // Sort overlapping exams by end time (latest end time first)
+    // This ensures we try to reuse teachers from exams that cover the most time
+    overlappingExams.sort((a, b) => b.end.getTime() - a.end.getTime())
+
+    let allSegmentsCovered = false
+
+    // Try to copy segments from each overlapping exam
+    for (const exam of overlappingExams) {
+      // For each booked segment in the overlapping exam
+      for (const segment of exam.bookedSegments) {
+        // Create a new segment covering the overlap between this exam and the segment
+        const latestStart = new Date(Math.max(this.start.getTime(), segment.start.getTime()))
+        const earliestEnd = new Date(Math.min(this.end.getTime(), segment.end.getTime()))
+
+        // If there's a valid overlap
+        if (latestStart < earliestEnd) {
+          console.log(
+            `Found valid overlap with teacher ${segment.teacher.name}: ${latestStart.toTimeString()} - ${earliestEnd.toTimeString()}`,
+          )
+
+          // Add the segment if it doesn't overlap with existing segments
+          if (!this.overlapsWithExistingSegments(latestStart, earliestEnd)) {
+            this.bookedSegments.push({
+              teacher: segment.teacher,
+              start: latestStart,
+              end: earliestEnd,
+            })
+            console.log(
+              `Added reused segment for ${segment.teacher.name}: ${latestStart.toTimeString()} - ${earliestEnd.toTimeString()}`,
+            )
+          }
+        }
+      }
+
+      // Sort and merge segments after each exam's segments are added
+      this.bookedSegments.sort((a, b) => a.start.getTime() - b.start.getTime())
+      this.mergeOverlappingSegments()
+
+      // Check if we've now covered the exam
+      if (this.isFullyCovered()) {
+        this.complete = true
+        console.log(`Exam ${this.subject} is now complete using reused teachers`)
+        return TORStatus.ExamComplete
+      }
+    }
+
+    // If we're here, we couldn't fully cover the exam with reused teachers
+    // We'll return partial status and let the regular algorithm finish the job
+    console.log(`Could not fully cover exam ${this.subject} with reused teachers`)
+    return this.isFullyCovered() ? TORStatus.ExamComplete : TORStatus.NoAvailability
+  }
+
+  /**
+   * Check if this exam overlaps with another exam
+   * @param other Another exam to check against
+   * @returns Whether there's an overlap
+   */
+  overlapsWithExam(other: Exam): boolean {
+    return this.start < other.end && other.start < this.end
+  }
+
+  /**
+   * Check if this exam starts at the same time as another exam
+   * @param other Another exam to check against
+   * @returns Whether they start at the same time
+   */
+  startsAtSameTimeAs(other: Exam): boolean {
+    return this.start.getTime() === other.start.getTime()
   }
 
   /**
@@ -207,9 +323,6 @@ export class Exam {
     return foundValidSegment ? TORStatus.NoAvailability : TORStatus.NoAvailability
   }
 
-  /**
-   * Get the later of the teacher's availability start and exam start
-   */
   /**
    * Get the later of the teacher's availability start and exam start
    */
@@ -340,4 +453,40 @@ export class Exam {
     const date = new Date(1970, 0, 1, hours, minutes) // Always use Jan 1, 1970
     return date
   }
+}
+
+/**
+ * Main function to process all exams and assign teachers
+ * @param exams Array of exams to process
+ * @param teachers Array of available teachers
+ * @returns Array of processed exams
+ */
+export function processExams(exams: Exam[], teachers: Teacher[]): Exam[] {
+  // Reset the processed exams list
+  ExamManager.resetProcessedExams()
+
+  // Sort exams by start time, then by room
+  // This ensures we process exams that start at the same time in the same room together
+  exams.sort((a, b) => {
+    const startCompare = a.start.getTime() - b.start.getTime()
+    if (startCompare === 0) {
+      return a.room.localeCompare(b.room)
+    }
+    return startCompare
+  })
+
+  for (const exam of exams) {
+    console.log(
+      `Processing exam: ${exam.subject} in room ${exam.room} at ${exam.start.toTimeString()}`,
+    )
+    const status = exam.findTimeslots(teachers)
+    console.log(`Exam processing status: ${TORStatus[status]}`)
+
+    // Add the exam to the processed list if it's complete
+    if (exam.complete) {
+      ExamManager.addProcessedExam(exam)
+    }
+  }
+
+  return exams
 }
