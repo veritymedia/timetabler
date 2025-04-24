@@ -45,11 +45,13 @@ export class Teacher {
     })
   }
 }
+
 export type ExamRaw = {
   subject: string
-  start: string // format YYYY-MM-DDThh:mm:ss
+  start: string // format ISO 8601
   duration: string // format HH:mm
   room: string
+  examCode?: string
 }
 export type BookedSegment = {
   teacher: Teacher

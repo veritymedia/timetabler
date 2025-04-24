@@ -13,14 +13,16 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.4",
+    "fuse.js": "^7.1.0",
+    "papaparse": "^5.5.2",
     "tailwindcss": "^4.1.4",
     "uuid": "^11.1.0",
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@tsconfig/node22": "^22.0.1",
-    "@types/node": "^22.14.0",
+    "@types/bun": "latest",
+    "@types/node": "^22.14.1",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
     "npm-run-all2": "^7.0.2",
