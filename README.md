@@ -12,6 +12,14 @@ However, you can get it to work with any csv if you pre-process the data appropr
 - [ ] Global contstraints and soft rules on all teachers. Eg. `Teachers cannot be schedueled for more than 2 hours per day`, `Proctoring should not take up more than 50% of free time in teachers day`
 - [ ] Teacher specific constraints and soft rules. Eg. `Teacher X cannot have more than two hours/ 50% of free lessons schedueled per day/ week/ every tuesday`
 
+# Usage
+
+## Recommended: Massolit
+
+The easiest way that this script can be used is through [massolit](https://github.com/veritymedia/massolit) as it is installed by default.
+
+Massolit is a web interface which has a nice UI to upload exams and teachers. It will do its best to clean up the data and convert dates properly. Massolit also allows saving this data. Future update will allow you to generate a public or password protected link to view the rendered timetable.
+
 ## Input Structure
 
 ### Exam
