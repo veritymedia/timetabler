@@ -22,6 +22,7 @@ type ExamRaw = {
   start: string // format 2025-04-24T14:08:48.340Z
   duration: string // format hh:mm
   room: string
+  examCode?: string
 }
 ```
 
@@ -31,7 +32,9 @@ type ExamRaw = {
 
 `duration` is the length of the event in hh:mm format.
 
-`room`: arbitrary room name/ code where the exam takes place. Note, this field is used to group ovelapping exams which start at the same time to not overprovision subjects to the event. This comparion is not case-sensitive, however, spelling must be identical. Eg. `"Room1" === "room1" === "rOoM1"` is equivalent, but `"room1" !== "rooms1" !== "ro0m1"` is not, and will be treated as separate rooms.
+`room` arbitrary room name/ code where the exam takes place. Note, this field is used to group ovelapping exams which start at the same time to not overprovision subjects to the event. This comparion is not case-sensitive, however, spelling must be identical. Eg. `"Room1" === "room1" === "rOoM1"` is equivalent, but `"room1" !== "rooms1" !== "ro0m1"` is not, and will be treated as separate rooms.
+
+`examCode` is optional string which holds the exam code. Used only for output labelling.
 
 ### Teacher
 
