@@ -5,12 +5,12 @@ This script is meant to work with a list of events/ exams in a specified format 
 It works well with and has been tested on Pearson Edxecel IGCSE an IAL exam details which are extracted from an official timetable.
 However, you can get it to work with any csv if you pre-process the data appropriately.
 
-## Features to add
+## Feature Features
 
-- [] Support flexible and natural language time input. [See](https://github.com/wanasit/chrono)
-- [] Support changing how many teacher to proctor in parallel.
-- [] Global contstraints and soft rules on all teachers. Eg. `Teachers cannot be schedueled for more than 2 hours per day`, `Proctoring should not take up more than 50% of free time in teachers day`
-- [] Teacher specific constraints and soft rules. Eg. `Teacher X cannot have more than two hours/ 50% of free lessons schedueled per day/ week/ every tuesday`
+- [ ] Support flexible and natural language time input. [See](https://github.com/wanasit/chrono)
+- [ ] Support changing how many teacher to proctor in parallel.
+- [ ] Global contstraints and soft rules on all teachers. Eg. `Teachers cannot be schedueled for more than 2 hours per day`, `Proctoring should not take up more than 50% of free time in teachers day`
+- [ ] Teacher specific constraints and soft rules. Eg. `Teacher X cannot have more than two hours/ 50% of free lessons schedueled per day/ week/ every tuesday`
 
 ## Input Structure
 
