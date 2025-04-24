@@ -37,13 +37,13 @@
     <div v-if="parsedData.length > 0" class="mb-6">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-lg font-semibold">Parsed Data ({{ parsedData.length }} records)</h3>
-        <div class="flex gap-2">
+        <div class="flex gap-2 items-center">
           <BaseButton type="secondary" @click="startAddNewRow">Create New Exam</BaseButton>
-          <BaseButton @click="downloadJSON"> Continue </BaseButton>
+          <BaseButton @click="emitParsedContent"> Continue </BaseButton>
         </div>
       </div>
 
-      <div class="overflow-x-auto relative shadow-2xl max-h-[60vh] text-sm bg-gray-100 rounded-2xl">
+      <div class="overflow-x-auto relative shadow-2xl max-h-[60vh] text-sm bg-gray-200 rounded-2xl">
         <table class="min-w-full">
           <thead class="">
             <tr class="">
@@ -54,29 +54,29 @@
                   @change="toggleSelectAllVisibleRows($event.target.checked)"
                 />
               </th>
-              <th class="py-2 px-4 border-b text-left">Subject</th>
-              <th class="py-2 px-4 border-b text-left">Start Time</th>
-              <th class="py-2 px-4 border-b text-left">Duration</th>
-              <th class="py-2 px-4 border-b text-left">Room</th>
-              <th class="py-2 px-4 border-b text-left">Exam Code</th>
-              <th class="py-2 px-4 border-b text-left">Actions</th>
+              <th class="py-0 px-2 border-b text-left">Subject</th>
+              <th class="py-0 px-2 border-b text-left">Start Time</th>
+              <th class="py-0 px-2 border-b text-left">Duration</th>
+              <th class="py-0 px-2 border-b text-left">Room</th>
+              <th class="py-0 px-2 border-b text-left">Exam Code</th>
+              <th class="py-0 px-2 border-b text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-if="newRow">
               <td class="border-b"></td>
 
-              <td class="py-2 px-4 border-b">
+              <td class="py-0 px-2 border-b">
                 <input v-model="newRow.subject" type="text" class="border rounded p-1 w-full" />
               </td>
-              <td class="py-2 px-4 border-b">
+              <td class="py-0 px-2 border-b">
                 <input
                   v-model="newRow.start"
                   type="datetime-local"
                   class="border rounded p-1 w-full"
                 />
               </td>
-              <td class="py-2 px-4 border-b">
+              <td class="py-0 px-2 border-b">
                 <input
                   v-model="newRow.duration"
                   type="text"
@@ -84,30 +84,19 @@
                   placeholder="01:30"
                 />
               </td>
-              <td class="py-2 px-4 border-b">
+              <td class="py-0 px-2 border-b">
                 <input v-model="newRow.room" type="text" class="border rounded p-1 w-full" />
               </td>
-              <td class="py-2 px-4 border-b">
+              <td class="py-0 px-2 border-b">
                 <input v-model="newRow.examCode" type="text" class="border rounded p-1 w-full" />
               </td>
-              <td class="py-2 px-4 border-b">
-                <button
-                  @click="saveNewRow"
-                  class="mr-1 px-2 py-1 bg-blue-500 text-white text-xs rounded"
-                >
-                  Save
-                </button>
-                <button
-                  @click="cancelNewRow"
-                  class="px-2 py-1 bg-gray-500 text-white text-xs rounded"
-                >
-                  Cancel
-                </button>
+              <td class="py-0 px-2 border-b">
+                <BaseButton size="xs" @click="saveNewRow"> Save </BaseButton>
+                <BaseButton size="xs" type="secondary" @click="cancelNewRow"> Cancel </BaseButton>
               </td>
             </tr>
 
-            <tr v-for="item in filteredRows" :key="item.id" class="hover:bg-gray-50">
-              <!-- Edit Row (unchanged logic, with <td></td> first for selector) -->
+            <tr v-for="item in filteredRows" :key="item.id" class="hover:bg-gray-100">
               <template v-if="editRowId === item.id">
                 <td class="py-2 px-2 border-b">
                   <input
@@ -116,21 +105,21 @@
                     @change="toggleSelectRow(item.id, $event.target.checked)"
                   />
                 </td>
-                <td class="py-2 px-4 border-b">
+                <td class="py-0 px-2 border-b">
                   <input
                     v-model="editBuffer.subject"
                     type="text"
                     class="border rounded p-1 w-full"
                   />
                 </td>
-                <td class="py-2 px-4 border-b">
+                <td class="py-0 px-2 border-b">
                   <input
                     v-model="editBuffer.start"
                     type="datetime-local"
                     class="border rounded p-1 w-full"
                   />
                 </td>
-                <td class="py-2 px-4 border-b">
+                <td class="py-0 px-2 border-b">
                   <input
                     v-model="editBuffer.duration"
                     type="text"
@@ -138,29 +127,21 @@
                     placeholder="01:30"
                   />
                 </td>
-                <td class="py-2 px-4 border-b">
+                <td class="py-0 px-2 border-b">
                   <input v-model="editBuffer.room" type="text" class="border rounded p-1 w-full" />
                 </td>
-                <td class="py-2 px-4 border-b">
+                <td class="py-0 px-2 border-b">
                   <input
                     v-model="editBuffer.examCode"
                     type="text"
                     class="border rounded p-1 w-full"
                   />
                 </td>
-                <td class="py-2 px-4 border-b">
-                  <button
-                    @click="saveEditRow"
-                    class="mr-1 px-2 py-1 bg-blue-500 text-white text-xs rounded"
-                  >
-                    Save
-                  </button>
-                  <button
-                    @click="cancelEditRow"
-                    class="px-2 py-1 bg-gray-500 text-white text-xs rounded"
-                  >
+                <td class="py-0 px-2 border-b">
+                  <BaseButton size="xs" @click="saveEditRow"> Save </BaseButton>
+                  <BaseButton size="xs" type="secondary" @click="cancelEditRow">
                     Cancel
-                  </button>
+                  </BaseButton>
                 </td>
               </template>
               <!-- Normal Row -->
@@ -172,18 +153,20 @@
                     @change="toggleSelectRow(item.id, $event.target.checked)"
                   />
                 </td>
-                <td class="py-2 px-4 border-b">{{ item.subject }}</td>
-                <td class="py-2 px-4 border-b">{{ new Date(item.start).toLocaleString() }}</td>
-                <td class="py-2 px-4 border-b">{{ item.duration }}</td>
-                <td class="py-2 px-4 border-b">{{ item.room }}</td>
-                <td class="py-2 px-4 border-b">{{ item.examCode || '—' }}</td>
-                <td class="py-2 px-4 border-b">
-                  <div class="flex space-x-2">
-                    <BaseButton @click="startEditRow(item)" type="secondary"> Edit </BaseButton>
-                    <BaseButton type="secondary" @click="duplicateExam(item)">
+                <td class="py-0 px-2 border-b">{{ item.subject }}</td>
+                <td class="py-0 px-2 border-b">{{ new Date(item.start).toLocaleString() }}</td>
+                <td class="py-0 px-2 border-b">{{ item.duration }}</td>
+                <td class="py-0 px-2 border-b">{{ item.room }}</td>
+                <td class="py-0 px-2 border-b">{{ item.examCode || '—' }}</td>
+                <td class="py-0 px-2 border-b">
+                  <div class="flex space-x-2 items-center">
+                    <BaseButton @click="startEditRow(item)" size="xs" type="secondary">
+                      Edit
+                    </BaseButton>
+                    <BaseButton type="secondary" size="xs" @click="duplicateExam(item)">
                       Duplicate
                     </BaseButton>
-                    <BaseButton type="destructive" @click="deleteExam(item.id)">
+                    <BaseButton type="destructive" size="xs" @click="deleteExam(item.id)">
                       Delete
                     </BaseButton>
                   </div>
@@ -203,6 +186,12 @@ import { ref, computed, defineProps } from 'vue'
 import Papa from 'papaparse'
 import Fuse from 'fuse.js'
 import BaseButton from './BaseButton.vue'
+
+const emits = defineEmits(['status:created'])
+
+function emitParsedContent() {
+  emit('status:created', parsedData)
+}
 
 // Props definition
 const props = defineProps({
@@ -231,10 +220,6 @@ const csvData = ref([])
 const error = ref('')
 const validationResults = ref([])
 const parsedData = ref([])
-const examToEdit = ref(null)
-const showEditModal = ref(false)
-const showNewExamModal = ref(false)
-const editMode = ref('edit') // 'edit' or 'duplicate' or 'new'
 
 // Expected CSV headers
 const expectedHeaders = [
@@ -471,13 +456,6 @@ function deleteExam(examId) {
   }
 }
 
-// Open edit modal for an exam
-const editExam = (exam) => {
-  examToEdit.value = JSON.parse(JSON.stringify(exam)) // Deep copy to avoid direct mutation
-  editMode.value = 'edit'
-  showEditModal.value = true
-}
-
 const searchTerm = ref('')
 const selectedRowIds = ref(new Set()) // Set for fast lookup
 
@@ -525,23 +503,6 @@ function toggleSelectAllVisibleRows(checked) {
 function multiDelete() {
   parsedData.value = parsedData.value.filter((row) => !selectedRowIds.value.has(row.id))
   selectedRowIds.value.clear()
-}
-
-// Save exam changes
-const saveExam = () => {
-  if (editMode.value === 'new' || editMode.value === 'duplicate') {
-    // Add new exam to the list
-    parsedData.value.push(examToEdit.value)
-  } else {
-    // Update existing exam
-    const index = parsedData.value.findIndex((exam) => exam.id === examToEdit.value.id)
-    if (index !== -1) {
-      parsedData.value[index] = examToEdit.value
-    }
-  }
-
-  showEditModal.value = false
-  examToEdit.value = null
 }
 </script>
 
